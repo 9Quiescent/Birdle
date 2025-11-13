@@ -1,19 +1,22 @@
 import SwiftUI
-import CoreData
 
 struct ContentView: View {
     var body: some View {
-        NavigationView {
-            VStack(spacing: 24) {
-                Text("Birdle")
-                    .font(.largeTitle.bold())
-                Text("Project is running on the simulator.")
-                Button("Add dummy item") {
-                    // Test sim
+        NavigationStack {
+            List {
+                Section("Play") {
+                    NavigationLink("Start Puzzle") { PuzzleView() }
+                    NavigationLink("Help") { HelpView() }
+                }
+                Section("My Birdle") {
+                    NavigationLink("History") { HistoryView() }
+                    NavigationLink("Upload Image") { UploadView() }
+                }
+                Section("About") {
+                    NavigationLink("About / Copyright") { AboutView() }
                 }
             }
-            .padding()
-            .navigationTitle("Home")
+            .navigationTitle("Birdle")
         }
     }
 }

@@ -1,10 +1,3 @@
-//
-//  BirdleTests.swift
-//  BirdleTests
-//
-//  Created by Dennis Kalongonda on 10/11/2025.
-//
-
 import Testing
 
 struct BirdleTests {

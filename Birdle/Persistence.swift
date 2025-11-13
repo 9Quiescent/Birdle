@@ -1,10 +1,3 @@
-//
-//  Persistence.swift
-//  Birdle
-//
-//  Created by Dennis Kalongonda on 10/11/2025.
-//
-
 import CoreData
 
 struct PersistenceController {
