@@ -27,7 +27,7 @@ enum HistoryStore {
     }
 }
 
-// MARK: - “One attempt per puzzle” helpers
+// Helpers for one full run per bird
 private let attemptedKey = "attemptedImageIDs"
 
 func hasAttempted(imageID: String) -> Bool {

@@ -2,6 +2,25 @@ import SwiftUI
 import PhotosUI
 
 struct UploadView: View {
+
+    // Monochrome primary button for "Choose A Photo" and "Upload"
+    // Slightly tighter radius and a faint stroke to differentiate this screen’s actions.
+    struct MonochromeButtonStyle: ButtonStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            configuration.label
+                .font(.headline)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity)
+                .background(configuration.isPressed ? .black.opacity(0.85) : .black)
+                .foregroundStyle(.white)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .stroke(.white.opacity(0.08), lineWidth: 1)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+    }
+
     @State private var photo: PhotosPickerItem?
     @State private var jpegData: Data?
     @State private var name = ""
@@ -12,7 +31,7 @@ struct UploadView: View {
     @State private var status: String?
     @State private var isUploading = false
 
-    // monochrome status style
+    // easy peasy monochrome status banner
     private enum StatusStyle { case info, success, error
         var icon: String {
             switch self { case .info: "info.circle"
@@ -31,20 +50,28 @@ struct UploadView: View {
                 if let jpegData, let ui = UIImage(data: jpegData) {
                     Image(uiImage: ui).resizable().scaledToFit().frame(maxHeight: 220)
                 }
-                PhotosPicker("Choose Photo", selection: $photo, matching: .images)
-                    .onChange(of: photo) { _, item in
-                        Task {
-                            if let data = try? await item?.loadTransferable(type: Data.self) {
-                                // Always make sure that we JPEG-encode to be sure of content-type
-                                if let ui = UIImage(data: data),
-                                   let jpg = ui.jpegData(compressionQuality: 0.9) {
-                                    jpegData = jpg
-                                } else {
-                                    jpegData = data // hope it's already jpeg
-                                }
+
+                // Custom-label initializer so we can style it as a black button
+                PhotosPicker(selection: $photo, matching: .images) {
+                    Text("Choose A Photo")
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                }
+                .buttonStyle(.plain)
+                .buttonStyle(MonochromeButtonStyle()) // visual consistency
+                .onChange(of: photo) { _, item in
+                    Task {
+                        if let data = try? await item?.loadTransferable(type: Data.self) {
+                            // Always make sure that we JPEG-encode to be sure of content-type
+                            if let ui = UIImage(data: data),
+                               let jpg = ui.jpegData(compressionQuality: 0.9) {
+                                jpegData = jpg
+                            } else {
+                                jpegData = data // hope it's already jpeg
                             }
                         }
                     }
+                }
             }
 
             Section("Details") {
@@ -63,6 +90,7 @@ struct UploadView: View {
                 } label: {
                     if isUploading { ProgressView() } else { Text("Upload") }
                 }
+                .buttonStyle(MonochromeButtonStyle())
                 .disabled(isUploading || jpegData == nil || name.isEmpty || photographer.isEmpty || license.isEmpty)
             }
 
@@ -84,7 +112,7 @@ struct UploadView: View {
                 .foregroundStyle(style.fg)
             }
         }
-        .navigationTitle("Upload Image")
+        .navigationTitle("Upload A Birdle")
     }
 
     private func doUpload() async {

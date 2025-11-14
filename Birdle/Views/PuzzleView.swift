@@ -2,6 +2,22 @@ import SwiftUI
 import CoreData
 
 struct PuzzleView: View {
+
+    // Monochrome primary action button for submit
+    // Slightly larger radius and a tiny scale effect on press to differentiate from UploadView’s variant.
+    struct MonochromeButtonStyle: ButtonStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            configuration.label
+                .font(.headline)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity)
+                .background(configuration.isPressed ? .black.opacity(0.85) : .black)
+                .foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .scaleEffect(configuration.isPressed ? 0.985 : 1.0)
+        }
+    }
+
     @Environment(\.managedObjectContext) private var context
 
     @State private var bird: Birdle?
@@ -18,6 +34,7 @@ struct PuzzleView: View {
         ScrollView {
             VStack(spacing: 16) {
                 if let bird {
+                    // Main puzzle image, distortion level based on clueIndex
                     RemoteImage(url: bird.imageURL(for: finished ? 5 : clueIndex))
                         .frame(maxHeight: 320)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -52,7 +69,7 @@ struct PuzzleView: View {
                             }
 
                             Button("Submit guess") { submit() }
-                                .buttonStyle(.borderedProminent)
+                                .buttonStyle(MonochromeButtonStyle())
 
                             Text("Attempt \(tries) of 5")
                                 .font(.footnote).foregroundStyle(.secondary)
@@ -118,7 +135,7 @@ struct PuzzleView: View {
     private func normalize(_ s: String) -> String {
         s.lowercased()
             .trimmingCharacters(in: .whitespacesAndNewlines)
-            .folding(options: .diacriticInsensitive, locale: .current)
+        .folding(options: .diacriticInsensitive, locale: .current)
     }
 
     private func autocomplete(for query: String) -> [String] {

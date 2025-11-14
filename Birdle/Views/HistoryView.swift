@@ -9,6 +9,12 @@ struct HistoryView: View {
         animation: .default
     ) private var attempts: FetchedResults<Attempt>
 
+    // Build final image URL from the stored imageID
+    private func finalURL(_ id: String?) -> URL? {
+        guard let id, !id.isEmpty else { return nil }
+        return URL(string: "https://easterbilby.net/birdle/\(id)5.jpg")
+    }
+
     var body: some View {
         List {
             if attempts.isEmpty {
@@ -32,16 +38,34 @@ struct HistoryView: View {
                         AttemptDetail(attempt: a)
                     } label: {
                         HStack(spacing: 12) {
-                            // small thumbnail, i'll fix this later
+                            // small thumbnail; if no cached photo, load final image via imageID
                             if let data = a.photoData, let ui = UIImage(data: data) {
                                 Image(uiImage: ui)
                                     .resizable().scaledToFill()
                                     .frame(width: 56, height: 56)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                            } else if let url = finalURL(a.imageID) {
+                                AsyncImage(url: url) { phase in
+                                    switch phase {
+                                    case .empty:
+                                        ProgressView().frame(width: 56, height: 56)
+                                    case .success(let image):
+                                        image.resizable().scaledToFill()
+                                            .frame(width: 56, height: 56)
+                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    case .failure:
+                                        Image(systemName: "photo")
+                                            .frame(width: 56, height: 56)
+                                    @unknown default:
+                                        Image(systemName: "photo")
+                                            .frame(width: 56, height: 56)
+                                    }
+                                }
                             } else {
                                 Image(systemName: "photo")
                                     .frame(width: 56, height: 56)
                             }
+
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(a.name ?? "Unknown").font(.headline)
                                 Text("\(a.success ? "Success" : "Failure") · Tries: \(a.tries) · \(format(a.date))")
@@ -75,6 +99,13 @@ struct HistoryView: View {
 
 struct AttemptDetail: View {
     let attempt: Attempt
+
+    // Build final image URL from the stored imageID
+    private func finalURL(_ id: String?) -> URL? {
+        guard let id, !id.isEmpty else { return nil }
+        return URL(string: "https://easterbilby.net/birdle/\(id)5.jpg")
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
@@ -82,7 +113,12 @@ struct AttemptDetail: View {
                     Image(uiImage: ui)
                         .resizable().scaledToFit()
                         .clipShape(RoundedRectangle(cornerRadius: 12))
+                } else if let url = finalURL(attempt.imageID) {
+                    // Show the final, unobscured Birdle image if we don’t have a cached photo
+                    RemoteImage(url: url)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
+
                 Text(attempt.name ?? "").font(.title3.bold())
                 Text("Tries: \(attempt.tries) • \(attempt.success ? "Success" : "Failure")")
                     .foregroundStyle(.secondary)

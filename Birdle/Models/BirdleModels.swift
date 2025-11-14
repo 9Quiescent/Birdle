@@ -2,7 +2,7 @@ import Foundation
 
 struct Birdle: Codable, Identifiable, Equatable {
     let name: String
-    let image: String               // e.g. "0008"
+    let image: String               // for example, "0008"
     let photographer: String
     let license: String
     let photographer_link: String
