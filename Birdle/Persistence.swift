@@ -3,19 +3,35 @@ import CoreData
 struct PersistenceController {
     static let shared = PersistenceController()
 
+    // Preview store with sample Attempt rows for SwiftUI previews
     @MainActor
     static let preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
-        for _ in 0..<10 {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
+
+        // Seed a few demo attempts
+        let samples: [(name: String, imageID: String, success: Bool, tries: Int16, seconds: Double)] = [
+            ("Silver Gull",        "0008", true,  2, 38),
+            ("Australian Magpie",  "0002", true,  1, 24),
+            ("Galah",              "0006", false, 5, 75)
+        ]
+
+        for s in samples {
+            let a = Attempt(context: viewContext)
+            a.date = Date()
+            a.name = s.name
+            a.imageID = s.imageID
+            a.photographer = "Preview Photographer"
+            a.license = "Creative Commons (preview)"
+            a.birdLink = "https://example.com/\(s.name.replacingOccurrences(of: " ", with: "_"))"
+            a.success = s.success
+            a.tries = s.tries
+            a.seconds = s.seconds
+            // a.photoData can stay nil for previews... for now lol. We'll see if I have enough time.
         }
-        do {
-            try viewContext.save()
-        } catch {
-            // Replace this implementation with code to handle the error appropriately.
-            // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+
+        do { try viewContext.save() }
+        catch {
             let nsError = error as NSError
             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
@@ -25,26 +41,20 @@ struct PersistenceController {
     let container: NSPersistentContainer
 
     init(inMemory: Bool = false) {
+        // MUST match the .xcdatamodeld name
         container = NSPersistentContainer(name: "Birdle")
+
         if inMemory {
             container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
         }
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-            if let error = error as NSError? {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
 
-                /*
-                 Typical reasons for an error here include:
-                 * The parent directory does not exist, cannot be created, or disallows writing.
-                 * The persistent store is not accessible, due to permissions or data protection when the device is locked.
-                 * The device is out of space.
-                 * The store could not be migrated to the current model version.
-                 Check the error message to determine what the actual problem was.
-                 */
+        container.loadPersistentStores { _, error in
+            if let error = error as NSError? {
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
-        })
+        }
+
+        // Merge background saves into main context
         container.viewContext.automaticallyMergesChangesFromParent = true
     }
 }

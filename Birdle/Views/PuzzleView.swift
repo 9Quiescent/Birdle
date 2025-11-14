@@ -1,11 +1,14 @@
 import SwiftUI
+import CoreData
 
 struct PuzzleView: View {
+    @Environment(\.managedObjectContext) private var context
+
     @State private var bird: Birdle?
     @State private var names: [String] = []
     @State private var guess = ""
     @State private var filtered: [String] = []
-    @State private var clueIndex = 0      // 0...4 during play; 5 on finish
+    @State private var clueIndex = 0      // 0...4 during play; 5 on finish. 5 is no distortion.
     @State private var tries = 0
     @State private var startedAt = Date()
     @State private var finished = false
@@ -64,7 +67,7 @@ struct PuzzleView: View {
             .padding()
         }
         .navigationTitle("Puzzle")
-        .task { await load() }
+        .task { await initialLoad() }
         .alert("Birdle", isPresented: .constant(toast != nil)) {
             Button("OK") { toast = nil }
         } message: {
@@ -72,15 +75,20 @@ struct PuzzleView: View {
         }
     }
 
+    // MARK: - Flow
+
     private func submit() {
         guard let bird else { return }
         let norm = normalize(guess)
         let target = normalize(bird.name)
+
+        var justSucceeded = false
         tries += 1
 
         if norm == target {
             finished = true
-            toast = "You did it! That is indeed a \(bird.name). Pat yourself on the back for being a Birdle pro."
+            justSucceeded = true
+            toast = "You did it! That is indeed a \(bird.name)."
         } else if tries >= 5 {
             finished = true
             clueIndex = 5
@@ -89,10 +97,21 @@ struct PuzzleView: View {
             clueIndex = min(clueIndex + 1, 4)
             toast = "Not quite, try again."
         }
+
         guess = ""
+
         if finished {
-            // TODO: save to Core Data (next step)
-            let _ = Date().timeIntervalSince(startedAt)
+            let dur = Date().timeIntervalSince(startedAt)
+            // not caching the final UIImage for now, so nil for the image preview for now.
+            HistoryStore.saveAttempt(
+                context: context,
+                bird: bird,
+                tries: tries,
+                duration: dur,
+                success: justSucceeded,
+                finalImage: nil
+            )
+            markAttempted(imageID: bird.image)
         }
     }
 
@@ -121,12 +140,21 @@ struct PuzzleView: View {
     private func load() async {
         startedAt = Date()
         do {
-            // For debugging specific puzzle:
+            // For debugging a specific puzzle:
             // bird = try await BirdleAPI.shared.fetchByID(1)
             bird = try await BirdleAPI.shared.fetchToday()
             names = try await BirdleAPI.shared.fetchAllNames()
         } catch {
             toast = "Couldn’t load puzzle. Check your connection."
+        }
+    }
+
+    private func initialLoad() async {
+        await load()
+        if let b = bird, hasAttempted(imageID: b.image) {
+            finished = true
+            clueIndex = 5
+            toast = "You’ve already attempted today’s bird."
         }
     }
 }

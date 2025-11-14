@@ -1,7 +1,10 @@
 import SwiftUI
+import CoreData
 
 @main
 struct BirdleApp: App {
+    // Core Data stack (so we can inject the viewContext into SwiftUI)
+    private let persistence = PersistenceController.shared
 
     init() {
         // URLSession reuse for images between runs
@@ -15,6 +18,7 @@ struct BirdleApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()   // main menu with all the nav stuff (start puzzle takes us to puzzle view for example)
+                .environment(\.managedObjectContext, persistence.container.viewContext)
         }
     }
 }
