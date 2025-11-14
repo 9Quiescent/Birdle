@@ -35,16 +35,6 @@
 			path = Birdle;
 			sourceTree = "<group>";
 		};
-		D0DD119B2EC0D37900BDB57A /* BirdleTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = BirdleTests;
-			sourceTree = "<group>";
-		};
-		D0DD11A52EC0D37900BDB57A /* BirdleUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = BirdleUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,8 +66,6 @@
 			isa = PBXGroup;
 			children = (
 				D0DD11882EC0D37600BDB57A /* Birdle */,
-				D0DD119B2EC0D37900BDB57A /* BirdleTests */,
-				D0DD11A52EC0D37900BDB57A /* BirdleUITests */,
 				D0DD11872EC0D37600BDB57A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -130,9 +118,6 @@
 			dependencies = (
 				D0DD119A2EC0D37900BDB57A /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				D0DD119B2EC0D37900BDB57A /* BirdleTests */,
-			);
 			name = BirdleTests;
 			packageProductDependencies = (
 			);
@@ -152,9 +137,6 @@
 			);
 			dependencies = (
 				D0DD11A42EC0D37900BDB57A /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				D0DD11A52EC0D37900BDB57A /* BirdleUITests */,
 			);
 			name = BirdleUITests;
 			packageProductDependencies = (

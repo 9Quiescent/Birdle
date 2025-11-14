@@ -1,7 +1,6 @@
 import SwiftUI
 
 // Reusable black background, white text button style
-// Does a simple pressed-state darken, rounded rectangle clip.
 struct MonochromeButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -15,13 +14,13 @@ struct MonochromeButtonStyle: ButtonStyle {
 }
 
 struct ContentView: View {
-    // Two equal columns with a small gutter
+    // Essentially just column rows with a small gutter
     private let columns = [GridItem(.flexible(), spacing: 12),
                            GridItem(.flexible(), spacing: 12)]
 
     var body: some View {
         NavigationStack {
-            // Scroll so the grid breathes on small devices
+            // Scroll so the grid can actually breathe on small devices
             ScrollView {
                 VStack(spacing: 20) {
 
@@ -29,24 +28,25 @@ struct ContentView: View {
                     VStack(spacing: 8) {
                         Image("BirdleLogo")
                             .resizable()
+                            .renderingMode(.original)
+                            .interpolation(.high)
                             .scaledToFit()
                             .frame(width: 120, height: 120)
-                            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                            .shadow(radius: 2)
-                        Text("It's wordle... but BIRDS (kinda)!")
+                            .clipped()
+                        Text("It's wordle... but BIRDS!")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
                     .padding(.top, 12)
 
-                    // Main navigation actions arranged in a 2-column grid
+                    // Main navigation actions
                     LazyVGrid(columns: columns, spacing: 12) {
 
                         // Play
                         NavigationLink {
                             PuzzleView()
                         } label: {
-                            Label("Start Today's Puzzle", systemImage: "play.circle.fill")
+                            Label("Daily Puzzle", systemImage: "play.circle.fill")
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(MonochromeButtonStyle())
@@ -64,7 +64,7 @@ struct ContentView: View {
                         NavigationLink {
                             HistoryView()
                         } label: {
-                            Label("Your Birdle History", systemImage: "clock.arrow.circlepath")
+                            Label("Your History", systemImage: "clock.arrow.circlepath")
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(MonochromeButtonStyle())
@@ -92,7 +92,7 @@ struct ContentView: View {
                 .padding(.bottom, 24)
             }
             .navigationTitle("Birdle")
-            // Quick-access info button in the nav bar
+            // info button in the nav bar
             .toolbar {
                 NavigationLink {
                     AboutView()

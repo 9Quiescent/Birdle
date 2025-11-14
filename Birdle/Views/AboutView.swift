@@ -13,7 +13,7 @@ struct AboutView: View {
                 }
 
                 // Area for my student ID and usage context
-                Text("Student: Dennis Kalongonda\nStudentID: Kaldt001\nPurpose: Educational use only.")
+                Text("Developed By: Dennis Kalongonda\nStudentID: Kaldt001\nPurpose: Educational use only.")
 
                 // License note
                 Text("All images and data used under the licenses specified by the API or uploaders.")

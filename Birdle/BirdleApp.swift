@@ -17,7 +17,7 @@ struct BirdleApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()   // main menu with all the nav stuff (start puzzle takes us to puzzle view for example)
+            SplashView()   // start at splash
                 .environment(\.managedObjectContext, persistence.container.viewContext)
         }
     }

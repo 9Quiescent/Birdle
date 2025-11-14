@@ -42,7 +42,7 @@ struct PuzzleView: View {
 
                     if !finished {
                         VStack(alignment: .leading, spacing: 10) {
-                            TextField("Type the bird’s name", text: $guess)
+                            TextField("Guess the bird of the day!", text: $guess)
                                 .textInputAutocapitalization(.words)
                                 .autocorrectionDisabled()
                                 .padding(12)
