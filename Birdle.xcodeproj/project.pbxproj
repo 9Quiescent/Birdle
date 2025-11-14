@@ -413,6 +413,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
 				MARKETING_VERSION = 1.0;
+				NSPhotoLibraryUsageDescription = "This app lets you upload a bird photo to the Birdle server.";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kalongonda.Birdle;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -457,6 +458,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
 				MARKETING_VERSION = 1.0;
+				NSPhotoLibraryUsageDescription = "This app lets you upload a bird photo to the Birdle server.";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kalongonda.Birdle;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;

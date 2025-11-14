@@ -4,6 +4,11 @@ enum BirdleAPIError: Error {
     case badURL, badResponse(Int), decode, network(Error), invalidImage
 }
 
+struct UploadOutcome {
+    let ok: Bool
+    let serverText: String
+}
+
 final class BirdleAPI {
     static let shared = BirdleAPI()
     private init() {}
@@ -22,15 +27,16 @@ final class BirdleAPI {
 
     // Grab bird names (GET method)
     func fetchAllNames() async throws -> [String] {
-        let url = try makeURL("\(base)?action=list")
+        // cache-buster so we don’t read stale JSON after an upload
+        let url = try makeURL("\(base)?action=list&nocache=\(UUID().uuidString)")
         let (data, resp) = try await URLSession.shared.data(from: url)
         try ensure200(resp)
         let decoded = try JSONDecoder().decode(BirdNameList.self, from: data)
         return decoded.birds
     }
 
-    // Upload image (POST multipart/form-data)
-    func uploadImage(
+    // Upload image (POST multipart/form-data) with server text back
+    func uploadImageOutcome(
         jpegData: Data,
         filename: String,
         name: String,
@@ -38,7 +44,7 @@ final class BirdleAPI {
         license: String,
         photographerLink: String,
         birdleLink: String
-    ) async throws -> Bool {
+    ) async throws -> UploadOutcome {
 
         let boundary = "Boundary-\(UUID().uuidString)"
         var request = URLRequest(url: try makeURL(base))
@@ -74,15 +80,11 @@ final class BirdleAPI {
         let (data, resp) = try await URLSession.shared.data(for: request)
         try ensure200(resp)
 
-        // Expecting { "result":"success" } on success
+        let txt = String(data: data, encoding: .utf8) ?? ""
         if let decoded = try? JSONDecoder().decode(APIResult.self, from: data) {
-            return decoded.result.lowercased() == "success"
+            return .init(ok: decoded.result.lowercased() == "success", serverText: txt)
         }
-        // Some servers might return plain text. Fall back to a quick check:
-        if let txt = String(data: data, encoding: .utf8)?.lowercased() {
-            return txt.contains("success")
-        }
-        return false
+        return .init(ok: txt.lowercased().contains("success"), serverText: txt)
     }
 
     // Helpers
